@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b1026">
+<title>ภารกิจลับ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#0b1026; --bg2:#1a1240; --card:rgba(255,255,255,.07); --line:rgba(255,255,255,.15);
+  --text:#f6f1ff; --muted:#b9b1d6; --accent:#ff8fb1; --accent2:#ffd08a; --ok:#7be0ad; --bad:#ff6b81;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  font-family:'Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif; color:var(--text); line-height:1.6;
+  background:
+    radial-gradient(1000px 700px at 15% -10%,rgba(90,50,160,.45),transparent),
+    radial-gradient(900px 700px at 100% 100%,rgba(160,40,110,.30),transparent),
+    linear-gradient(160deg,var(--bg1),var(--bg2));
+  background-attachment:fixed; overflow-x:hidden;
+}
+h1,h2,.tag,button,.big{font-family:'Mitr','Sarabun',system-ui,sans-serif}
+#stars{position:fixed;inset:0;pointer-events:none;opacity:.6;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 90px 120px,#ffd6e7,transparent),
+    radial-gradient(1px 1px at 160px 60px,#fff,transparent),
+    radial-gradient(1px 1px at 230px 180px,#cfe3ff,transparent);
+  background-size:250px 220px; animation:tw 6s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.3}to{opacity:.8}}
+
+#timer{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;z-index:60;display:none;
+  padding:6px 14px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid var(--line);
+  font-family:'Mitr',monospace;font-size:1rem;letter-spacing:.5px;backdrop-filter:blur(6px)}
+#timer.show{display:block}
+
+.screen{display:none;position:relative;min-height:100dvh;padding:calc(env(safe-area-inset-top,0px) + 64px) 18px 40px;align-items:center;justify-content:center}
+.screen.active{display:flex;animation:in .6s ease}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.card{width:100%;max-width:520px;background:var(--card);border:1px solid var(--line);border-radius:22px;
+  padding:28px 22px;text-align:center;backdrop-filter:blur(10px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.tag{display:inline-block;font-size:.85rem;color:var(--accent2);letter-spacing:.5px;margin-bottom:8px}
+h1{font-size:2rem;margin:.1em 0 .4em;font-weight:500}
+h2{font-size:1.45rem;margin:.1em 0 .5em;font-weight:500;line-height:1.4}
+p{margin:.5em 0;color:var(--text)}
+.muted{color:var(--muted);font-size:.95rem}
+.clue{margin:16px 0;padding:12px 14px;border-radius:14px;background:rgba(255,208,138,.10);border:1px dashed rgba(255,208,138,.45);color:var(--accent2);text-align:left}
+.code{margin:14px 0;padding:14px;border-radius:14px;background:rgba(0,0,0,.35);border:1px solid var(--line);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1.05rem;word-break:break-all;user-select:all}
+.code.nums{font-size:1.5rem;letter-spacing:2px;word-break:normal}
+.code .gap{display:inline-block;width:1.4rem}
+
+input[type=text],textarea{width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1px solid var(--line);
+  background:rgba(255,255,255,.08);color:var(--text);font:inherit;font-size:16px;text-align:center;outline:none}
+textarea{resize:none}
+input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,143,177,.25)}
+::placeholder{color:rgba(255,255,255,.35)}
+
+button{cursor:pointer;border:0;border-radius:14px;font-size:1rem;padding:13px 24px;margin-top:14px;color:#2a0f24;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));font-weight:500;transition:transform .15s,filter .15s}
+button:hover{filter:brightness(1.07)} button:active{transform:scale(.97)}
+button[disabled]{opacity:.5;cursor:default}
+button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);padding:8px 16px;font-size:.9rem;margin-top:10px}
+
+.fb{min-height:1.6em;margin-top:12px;font-weight:600}
+.fb.bad{color:var(--bad)} .fb.ok{color:var(--ok)}
+.hints{margin-top:6px}
+.hints .clue{margin:8px 0;font-size:.95rem}
+
+.digits{display:flex;gap:10px;justify-content:center;margin:16px 0 4px}
+.digit{width:52px;height:64px;padding:0;margin:0;font-size:1.7rem !important;font-family:'Mitr',monospace}
+
+.shake{animation:shake .5s}
+@keyframes shake{10%,90%{transform:translateX(-3px)}20%,80%{transform:translateX(6px)}30%,50%,70%{transform:translateX(-10px)}40%,60%{transform:translateX(10px)}}
+
+.rain{position:fixed;top:-40px;font-size:1.8rem;pointer-events:none;z-index:70;animation:fall var(--d) ease-in forwards}
+@keyframes fall{to{transform:translateY(112vh) rotate(var(--r))}}
+
+.fly{position:fixed;left:0;top:var(--y);white-space:nowrap;pointer-events:none;z-index:70;
+  font-family:'Mitr',sans-serif;font-size:var(--fs);color:var(--c);text-shadow:0 2px 14px rgba(0,0,0,.5);
+  animation:var(--dir) var(--d) linear forwards}
+@keyframes flyR{from{transform:translateX(100vw)}to{transform:translateX(-110%)}}
+@keyframes flyL{from{transform:translateX(-110%)}to{transform:translateX(100vw)}}
+
+#noise{display:block;width:100%;max-width:360px;margin:12px auto 0;border-radius:12px;image-rendering:pixelated;background:#000;transition:filter .1s}
+.slider{margin:10px auto 0;max-width:360px;text-align:left;color:var(--muted);font-size:.9rem}
+.slider input{width:100%;accent-color:var(--accent);margin-top:4px}
+.cipher{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.6rem;letter-spacing:4px;color:var(--accent2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+.chip{min-width:58px;padding:9px 10px;margin:0;border-radius:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1rem;
+  background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line);font-weight:400}
+.chip.on{background:rgba(255,143,177,.25);border-color:var(--accent);color:#fff}
+#chain{display:flex;flex-direction:column;align-items:center;gap:6px;transition:opacity .8s}
+#chain.out{opacity:0}
+.step{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.35rem;opacity:0;transform:translateY(8px);transition:all .6s;text-align:center}
+.step:not(:first-child)::before{content:'↓';display:block;color:var(--accent);font-size:1rem;opacity:.7}
+.step.show{opacity:1;transform:none}
+.step.dim{opacity:.4}
+#final{display:none;text-align:center}
+#final.show{display:block;animation:in 1.2s ease}
+.big{font-size:clamp(2.4rem,11vw,4rem);margin:0 0 18px;color:#fff;text-shadow:0 0 30px rgba(255,143,177,.8),0 0 60px rgba(255,143,177,.5)}
+#final .sub{opacity:0;transition:opacity 1.6s;max-width:460px;margin:0 auto}
+#final .sub.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div id="timer">⏱ 00:00</div>
+
+<!-- หน้าหลัก / เริ่มเกม -->
+<section class="screen" id="s-intro">
+  <div class="card">
+    <div class="tag">ภารกิจลับ 🔐</div>
+    <h1>พร้อมหรือยัง?</h1>
+    <p>เกมนี้มี<b>การจับเวลา</b></p>
+    <p class="muted">เมื่อกดตกลง นาฬิกาจะเริ่มเดิน และเดินต่อเนื่องไปจนกว่าเกมจะจบ<br>(ปิดหน้าเว็บไปแล้วเวลาก็ยังเดินอยู่นะ 😏)</p>
+    <button id="btn-start">ตกลง</button>
+  </div>
+</section>
+
+<!-- ด่าน 1 -->
+<section class="screen" id="s-l1">
+  <div class="card">
+    <div class="tag">ด่านที่ 1 · ความทรงจำ</div>
+    <h2>วันสำคัญ จุดเริ่มต้นของเรื่องราวของเรา<br>ซ่อนอยู่ในตัวเลข 4 หลัก</h2>
+    <div class="clue">💡 คำใบ้: จะมีเรื่องหนึ่งชุด จับคู่เลขที่อยู่ใกล้กันบวกกัน จะได้คำตอบ</div>
+    <form data-level="l1" autocomplete="off">
+      <input type="text" inputmode="numeric" maxlength="8" placeholder="• • • •" aria-label="คำตอบ 4 หลัก">
+      <div class="fb"></div>
+      <button type="submit">ตรวจคำตอบ</button>
+    </form>
+    <div class="hints" data-hints="l1"></div>
+    <button class="ghost" data-hintbtn="l1">ขอคำใบ้เพิ่ม</button>
+  </div>
+</section>
+
+<!-- ด่าน 2 -->
+<section class="screen" id="s-l2">
+  <div class="card">
+    <div class="tag">ด่านที่ 2 · ถอดรหัส</div>
+    <h2>ตัวเลขเหล่านี้ ถูกแปลงมาจากตัวอักษรภาษาอังกฤษ</h2>
+    <div class="code nums">12<span class="gap"></span>15 18 25 8<span class="gap"></span>24</div>
+    <div class="clue">💡 คำใบ้: คิดเอง...</div>
+    <form data-level="l2" autocomplete="off">
+      <input type="text" placeholder="ข้อความที่ถอดได้" autocapitalize="none" aria-label="คำตอบ">
+      <div class="fb"></div>
+      <button type="submit">ตรวจคำตอบ</button>
+    </form>
+  </div>
+</section>
+
+<!-- หลังด่าน 2: ให้โทร -->
+<section class="screen" id="s-call">
+  <div class="card">
+    <div style="font-size:3rem">📞</div>
+    <h2>ให้โทรหาแล้วบอกรหัสลับนั้น</h2>
+    <p class="muted">โทรหาผม แล้วผมจะบอกคำใบ้ต่อไปให้</p>
+    <form id="callForm" autocomplete="off" hidden>
+      <input type="text" placeholder="รหัสที่ได้จากการโทร" aria-label="รหัสจากการโทร">
+      <div class="fb"></div>
+      <button type="submit">ไปด่านต่อไป →</button>
+    </form>
+    <button id="btn-call-next">ไปด่านต่อไป →</button>
+  </div>
+</section>
+
+<!-- ด่าน 3 -->
+<section class="screen" id="s-l3">
+  <div class="card">
+    <div class="tag">ด่านที่ 3</div>
+    <h2>คำใบ้มาแล้ว</h2>
+    <div class="code">rae ouy ywa teh stuj</div>
+    <div class="code">---it's U---</div>
+    <form data-level="l3" autocomplete="off">
+      <textarea rows="2" placeholder="พิมพ์คำตอบที่นี่" autocapitalize="none" aria-label="คำตอบ"></textarea>
+      <div class="fb"></div>
+      <button type="submit">ตรวจคำตอบ</button>
+    </form>
+  </div>
+</section>
+
+<!-- ด่าน 4 (เกมใหม่ 1): สัญญาณรบกวน -->
+<section class="screen" id="s-g1">
+  <div class="card">
+    <div class="tag">ด่านที่ 4 · สัญญาณรบกวน</div>
+    <h2>ภาพนี้ดูเหมือนแค่ความว่างเปล่า<br>แต่มีบางอย่างซ่อนอยู่ในนั้น</h2>
+    <canvas id="noise" width="360" height="130" aria-label="ภาพสัญญาณรบกวน"></canvas>
+    <div class="slider">🔎 ตัวกรอง (ลากดู)
+      <input type="range" id="blurRange" min="0" max="7" step="0.1" value="0" aria-label="ตัวกรอง">
+    </div>
+    <p class="muted" style="margin-top:16px">ข้อความที่ถูกเข้ารหัสไว้</p>
+    <div class="cipher">YWRA UUVG</div>
+    <form data-level="g1" autocomplete="off">
+      <input type="text" placeholder="คำตอบ (ภาษาอังกฤษ)" autocapitalize="none" aria-label="คำตอบ">
+      <div class="fb"></div>
+      <button type="submit">ตรวจคำตอบ</button>
+    </form>
+    <div class="hints" data-hints="g1"></div>
+    <button class="ghost" data-hintbtn="g1">ขอคำใบ้เพิ่ม</button>
+  </div>
+</section>
+
+<!-- ด่าน 5 (เกมใหม่ 2): จำนวนเฉพาะ -->
+<section class="screen" id="s-g2">
+  <div class="card">
+    <div class="tag">ด่านที่ 5 · เสียงที่แท้จริง</div>
+    <h2>มีเพียงบางตัวเท่านั้นที่พูดความจริง<br>ที่เหลือคือเสียงรบกวน</h2>
+    <p class="muted">แตะตัวเลขเพื่อทำเครื่องหมายไว้ช่วยคิด</p>
+    <div class="chips" id="chips"></div>
+    <form data-level="g2" autocomplete="off">
+      <input type="text" placeholder="คำตอบ (ภาษาอังกฤษ)" autocapitalize="none" aria-label="คำตอบ">
+      <div class="fb"></div>
+      <button type="submit">ตรวจคำตอบ</button>
+    </form>
+    <div class="hints" data-hints="g2"></div>
+    <button class="ghost" data-hintbtn="g2">ขอคำใบ้เพิ่ม</button>
+  </div>
+</section>
+
+<!-- ด่าน 4: กลับมาหน้าหลัก -->
+<section class="screen" id="s-l4">
+  <div class="card" id="l4card">
+    <div class="tag">ด่านสุดท้าย · กลับมาที่หน้าหลัก</div>
+    <h2>ใกล้ถึงแล้ว</h2>
+    <div class="code">MDgzMjQyMTUyNQ==</div>
+    <div class="code">a9c3b7d8e1f0c2a4b5d6e7f8a1b2c3d4</div>
+    <p class="muted">กรอกตัวเลข 5 ช่อง</p>
+    <form data-level="l4" autocomplete="off">
+      <div class="digits">
+        <input class="digit" type="text" inputmode="numeric" maxlength="1" aria-label="หลักที่ 1">
+        <input class="digit" type="text" inputmode="numeric" maxlength="1" aria-label="หลักที่ 2">
+        <input class="digit" type="text" inputmode="numeric" maxlength="1" aria-label="หลักที่ 3">
+        <input class="digit" type="text" inputmode="numeric" maxlength="1" aria-label="หลักที่ 4">
+        <input class="digit" type="text" inputmode="numeric" maxlength="1" aria-label="หลักที่ 5">
+      </div>
+      <div class="fb"></div>
+      <button type="submit">ยืนยัน</button>
+    </form>
+    <div class="hints" data-hints="l4"></div>
+    <button class="ghost" data-hintbtn="l4">ขอคำใบ้เพิ่ม</button>
+  </div>
+</section>
+
+<!-- ตอนจบ -->
+<section class="screen" id="s-end">
+  <div style="width:100%;max-width:560px">
+    <div id="chain"></div>
+    <div id="final">
+      <div class="big">ชังเทอลัก</div>
+      <p class="sub" id="finalText">เกมจบแล้วคุณไปได้ครับ<br>แค่อยากให้โทรหา แต่ไม่ต้องโทรมาหาก็ได้ครับ<br>ผมแค่รออยู่</p>
+      <p class="muted sub" id="finalTime" style="margin-top:22px"></p>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= ตั้งค่า (แก้ตรงนี้ได้) ================= */
+
+// รหัสที่ต้องบอกทางโทรศัพท์ก่อนไปด่าน 3 — ถ้าเว้นว่างไว้ '' = ไม่ล็อก (มีปุ่มกดไปต่อเลย)
+const CALL_CODE = '';
+
+// เฉลยเก็บเป็น hash (ไม่ใช่ข้อความตรง ๆ) กันคนกด "ดูซอร์สโค้ด" แล้วเห็นเฉลย
+const SALT = 'ily|';
+const ANSWERS = {
+  l1: [6648583576093859],                              // 4728
+  l2: [841439713781871, 6820852403717962],             // iloveu / ilu
+  l3: [5593429676915520, 7597455075909167],            // justthewayyouare / ...brunomars
+  g1: [7001172429081110],                              // midnight
+  g2: [6027612211580101],                              // cicada
+  l4: [886157181730332],                               // 13234
+};
+
+const HINTS = {
+  g1: [
+    'ภาพนี้ไม่ได้ว่างเปล่า — ลองลากตัวกรองช้า ๆ (ประมาณ 3-4) แล้วดูดี ๆ',
+    'สิ่งที่ซ่อนอยู่คือ "กุญแจ" (key) ส่วนข้อความด้านล่างคือ "ต้นฉบับที่ถูกล็อกด้วยกุญแจนั้น"',
+    'รหัสชนิดนี้ชื่อ Vigenère cipher — คือ Caesar cipher ที่เลื่อนไม่เท่ากันทุกตัว โดยใช้ตัวอักษรของกุญแจวนซ้ำไปเรื่อย ๆ',
+    'ถอดรหัส: เอาตัวอักษรของข้อความ "ลบ" ด้วยตัวอักษรของกุญแจทีละตัว (A=0, B=1, ... Z=25) ถ้าติดลบให้บวก 26 — หรือค้นคำว่า "Vigenere decoder" แล้วใส่ข้อความกับกุญแจก็ได้',
+  ],
+  g2: [
+    'เฉพาะตัวเลขที่เป็น "จำนวนเฉพาะ" (prime) เท่านั้นที่มีความหมาย ตัวอื่นคือเสียงรบกวน',
+    'ตัวเลขมาในหลายรูปแบบ: 0b... คือเลขฐาน 2, 0x... คือเลขฐาน 16, ส่วน I V X L C คือเลขโรมัน — แปลงเป็นเลขฐาน 10 ก่อนค่อยตรวจว่าเป็นจำนวนเฉพาะหรือไม่',
+    'จำนวนเฉพาะตัวที่ n → ตัวอักษรตัวที่ n ของ A-Z เช่น 2 คือจำนวนเฉพาะตัวแรก = A, 3 ตัวที่สอง = B, 5 ตัวที่สาม = C ...',
+    'อ่านตามลำดับที่ปรากฏ คำตอบคือชื่อแมลงชนิดหนึ่งที่ร้องเสียงดังในหน้าร้อน (และเป็นชื่อปริศนาที่โด่งดังที่สุดบนอินเทอร์เน็ต)',
+  ],
+  l1: [
+    'ตัวเลขชุดนั้นเป็นวันที่ เขียนแบบ วัน เดือน ปี ค.ศ. ติดกัน (8 หลัก)',
+    '8 หลัก → จับเป็น 4 คู่ (คู่ละ 2 ตัวติดกัน) → บวกกันในแต่ละคู่ → ได้ 4 หลัก',
+  ],
+  l4: [
+    'บรรทัดที่สองยาว ๆ นั่น ลองคิดดูดี ๆ ว่ามันใช้ได้จริงไหม 😏',
+    'บรรทัดแรกที่ลงท้ายด้วย == เป็นรหัสชนิดหนึ่งที่ชื่อขึ้นต้นด้วย B (Base64) — ลองถอดดู จะได้เบอร์โทร',
+    'เบอร์ที่สอง คือเบอร์ของคนที่เธอเพิ่งโทรหา',
+    'ตัด 0 ตัวหน้าสุดของทั้งสองเบอร์ทิ้ง แล้วนำมาบวกกัน จากนั้นเก็บเฉพาะหลักที่ "ต่ำกว่า 5" ตามลำดับเดิม',
+  ],
+};
+
+const TAUNTS = [
+  'อุ๊ย ผิดจ้า 🤭','ไหนบอกว่าเก่งไง~ 😏','ผิดแล้วววว 🐢','สมองกำลังโหลด... ⏳',
+  'เกือบถูก (ถ้าเป็นวันหน้า) 🤣','คิดใหม่อีกทีนะจ๊ะ 🙃','ตอบแบบนี้ยังไม่ผ่านนะ 😜','ฮั่นแน่ เดาสุ่มใช่ไหมเนี่ย 🤨',
+];
+const RAIN = ['🤪','😜','🙈','🐒','🤡','🥴','😝'];
+
+const CHEERS = [
+  'เก่งมากเลย ✨','ฉลาดที่สุดเลย','ไม่ยอมแพ้เลยสักที 💪','เกือบถึงแล้ว!','ภูมิใจนะ 💛','สมองเทพจริง ๆ',
+  'ตั้งใจมากเลยวันนี้','ทำได้เสมอ','เก่งจนน่าหมั่นไส้ 😆','สุดยอดไปเลย 🌟','อีกนิดเดียวจริง ๆ','คนเก่งของเราาา',
+  'ยิ้มหน่อยสิ 😊','ทำได้ดีมากนะ','เชื่อมาตลอดว่าทำได้','เท่มากกก 😎',
+];
+const COLORS = ['#ffd08a','#ff8fb1','#a8e6ff','#c9b6ff','#9df0c4','#ffffff'];
+
+// ขั้นตอนที่จะโชว์ก่อนจบ (แก้ข้อความได้)
+const CHAIN = [
+  '13234','1+3 23 4','4234','4+4','283','2 8-3','25',
+  '(27-2)(29-4)','(27-2+3)(29-4*3)','(27-05)(29-12)','27-05-53 / 29-12-52',
+];
+
+/* ================= ตัวช่วย ================= */
+const cyrb53=(str,seed=0)=>{let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
+  h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0);};
+const norm = s => String(s).toLowerCase().replace(/[^a-z0-9]/g,'');
+const hash = s => cyrb53(SALT + norm(s));
+const isRight = (lv, raw) => ANSWERS[lv].includes(hash(raw));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const rnd = (a,b) => a + Math.random()*(b-a);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+/* ================= สถานะ + จับเวลา ================= */
+const KEY = 'puzzle-state-v1';
+if (/[?&]reset\b/.test(location.search)) { try{localStorage.removeItem(KEY)}catch(e){} }
+let st;
+try { st = JSON.parse(localStorage.getItem(KEY)); } catch(e) {}
+st = st || { stage:'intro', start:null, end:null };
+const save = () => { try{localStorage.setItem(KEY, JSON.stringify(st))}catch(e){} };
+
+const timerEl = $('#timer');
+const pad = n => String(n).padStart(2,'0');
+function fmt(ms){
+  const t=Math.floor(ms/1000), h=Math.floor(t/3600), m=Math.floor(t%3600/60), s=t%60;
+  return (h ? h+':' : '') + pad(m) + ':' + pad(s);
+}
+function tick(){
+  if(!st.start) return;
+  timerEl.classList.add('show');
+  timerEl.textContent = '⏱ ' + fmt((st.end || Date.now()) - st.start);
+}
+setInterval(tick, 250);
+
+const SCREENS = { intro:'s-intro', l1:'s-l1', l2:'s-l2', call:'s-call', l3:'s-l3', g1:'s-g1', g2:'s-g2', l4:'s-l4', end:'s-end' };
+const NEXT = { l1:'l2', l2:'call', l3:'g1', g1:'g2', g2:'l4' };
+function go(stage){
+  st.stage = stage; save();
+  $$('.screen').forEach(s => s.classList.toggle('active', s.id === SCREENS[stage]));
+  window.scrollTo(0,0);
+  tick();
+  const inp = $('#'+SCREENS[stage]+' input[type=text], #'+SCREENS[stage]+' textarea');
+  if (inp && stage !== 'intro' && stage !== 'end') setTimeout(()=>inp.focus({preventScroll:true}), 400);
+}
+
+/* ================= เอฟเฟกต์ ================= */
+function rain(){
+  for(let i=0;i<16;i++){
+    const e=document.createElement('span');
+    e.className='rain'; e.textContent=pick(RAIN);
+    e.style.left=rnd(0,95)+'vw';
+    e.style.setProperty('--d', rnd(1.2,2.4)+'s');
+    e.style.setProperty('--r', rnd(-360,360)+'deg');
+    e.style.animationDelay = rnd(0,.5)+'s';
+    document.body.appendChild(e);
+    setTimeout(()=>e.remove(), 3200);
+  }
+}
+function wrong(card, fb){
+  card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+  fb.className='fb bad'; fb.textContent = pick(TAUNTS);
+  rain();
+}
+function spawnFly(){
+  const e=document.createElement('div');
+  e.className='fly'; e.textContent=pick(CHEERS);
+  const d=rnd(5,8);
+  e.style.setProperty('--y', rnd(8,88)+'vh');
+  e.style.setProperty('--fs', rnd(1.1,2.1)+'rem');
+  e.style.setProperty('--c', pick(COLORS));
+  e.style.setProperty('--d', d+'s');
+  e.style.setProperty('--dir', Math.random()<.5 ? 'flyR' : 'flyL');
+  document.body.appendChild(e);
+  setTimeout(()=>e.remove(), d*1000+300);
+}
+async function celebrate(){
+  for(let i=0;i<26;i++){ spawnFly(); await wait(380); }
+  await wait(6500);
+}
+
+/* ================= คำใบ้เพิ่มเติม ================= */
+const hintIdx = {};
+$$('[data-hintbtn]').forEach(btn=>{
+  const lv=btn.dataset.hintbtn; hintIdx[lv]=0;
+  btn.addEventListener('click',()=>{
+    const list=HINTS[lv], box=$('[data-hints="'+lv+'"]');
+    if(hintIdx[lv] < list.length){
+      const d=document.createElement('div'); d.className='clue';
+      d.textContent='💡 ' + list[hintIdx[lv]++]; box.appendChild(d);
+    }
+    if(hintIdx[lv] >= list.length){ btn.disabled=true; btn.textContent='หมดคำใบ้แล้ว'; }
+  });
+});
+
+/* ================= ฟอร์มด่าน 1-3 ================= */
+$$('form[data-level]').forEach(form=>{
+  const lv=form.dataset.level;
+  if(lv==='l4') return;
+  const field=$('input,textarea',form), fb=$('.fb',form), card=form.closest('.card');
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(!field.value.trim()) return;
+    if(isRight(lv, field.value)){
+      fb.className='fb ok'; fb.textContent='ถูกต้อง! ✨';
+      setTimeout(()=>{ go(NEXT[lv]); fb.textContent=''; }, 900);
+    } else { wrong(card, fb); }
+  });
+});
+
+/* ================= ด่าน 4: ภาพสัญญาณรบกวน ================= */
+(function initNoise(){
+  const c=$('#noise'), w=c.width, h=c.height, ctx=c.getContext('2d');
+  const m=document.createElement('canvas'); m.width=w; m.height=h;
+  const mc=m.getContext('2d');
+  mc.fillStyle='#000'; mc.fillRect(0,0,w,h);
+  mc.fillStyle='#fff'; mc.strokeStyle='#fff'; mc.lineWidth=2;
+  mc.font='bold 50px "DejaVu Sans",Arial,Helvetica,sans-serif';
+  mc.textAlign='center'; mc.textBaseline='middle';
+  mc.strokeText('KEY: MOON', w/2, h/2); mc.fillText('KEY: MOON', w/2, h/2);
+  const md=mc.getImageData(0,0,w,h).data, img=ctx.createImageData(w,h);
+  for(let i=0;i<w*h;i++){
+    const inside = md[i*4] > 128;
+    const v = Math.random() < (inside ? 0.70 : 0.50) ? 255 : 0;
+    img.data[i*4]=img.data[i*4+1]=img.data[i*4+2]=v; img.data[i*4+3]=255;
+  }
+  ctx.putImageData(img,0,0);
+  const r=$('#blurRange');
+  const apply=()=>{ const b=parseFloat(r.value); c.style.filter = b>0 ? 'blur('+b+'px) contrast('+(1+b*0.9).toFixed(2)+')' : 'none'; };
+  r.addEventListener('input', apply); apply();
+})();
+
+/* ================= ด่าน 5: จำนวนเฉพาะหลายรูปแบบ ================= */
+(function initChips(){
+  const seq=['91','0b101','XXI','0b110','0x17','57','1','V','0x1A','87','0b10','51','XLIX','0x07','33','0b1001','II','100','0x0F','0x20'];
+  const box=$('#chips');
+  seq.forEach(t=>{
+    const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=t;
+    b.addEventListener('click',()=>b.classList.toggle('on'));
+    box.appendChild(b);
+  });
+})();
+
+/* ================= หน้าโทร ================= */
+const callForm=$('#callForm'), callBtn=$('#btn-call-next');
+if(CALL_CODE){
+  callForm.hidden=false; callBtn.hidden=true;
+  callForm.addEventListener('submit',e=>{
+    e.preventDefault();
+    const inp=$('input',callForm), fb=$('.fb',callForm);
+    if(norm(inp.value)===norm(CALL_CODE)){ go('l3'); }
+    else wrong(callForm.closest('.card'), fb);
+  });
+} else {
+  callBtn.addEventListener('click',()=>go('l3'));
+}
+
+/* ================= ด่าน 4: ช่องตัวเลข 5 ช่อง ================= */
+const boxes=$$('.digit');
+boxes.forEach((b,i)=>{
+  b.addEventListener('input',()=>{
+    b.value=b.value.replace(/\D/g,'').slice(-1);
+    if(b.value && i<boxes.length-1) boxes[i+1].focus();
+  });
+  b.addEventListener('keydown',e=>{
+    if(e.key==='Backspace' && !b.value && i>0){ boxes[i-1].value=''; boxes[i-1].focus(); }
+    if(e.key==='ArrowLeft' && i>0) boxes[i-1].focus();
+    if(e.key==='ArrowRight' && i<boxes.length-1) boxes[i+1].focus();
+  });
+  b.addEventListener('paste',e=>{
+    e.preventDefault();
+    const d=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,boxes.length);
+    d.split('').forEach((c,k)=>boxes[k].value=c);
+    boxes[Math.min(d.length,boxes.length-1)].focus();
+  });
+  b.addEventListener('focus',()=>b.select());
+});
+
+const l4form=$('form[data-level="l4"]'), l4fb=$('.fb',l4form), l4card=$('#l4card');
+l4form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const val=boxes.map(b=>b.value).join('');
+  if(val.length<boxes.length){ l4fb.className='fb'; l4fb.textContent='กรอกให้ครบ 5 ช่องก่อนนะ'; return; }
+  if(isRight('l4', val)){
+    st.end = Date.now(); save(); tick();
+    boxes.forEach(b=>b.disabled=true); $('button[type=submit]',l4form).disabled=true;
+    l4fb.className='fb ok'; l4fb.textContent='ถูกต้องทั้งหมด! 🎉';
+    await celebrate();
+    go('end');
+    await runReveal();
+  } else {
+    wrong(l4card, l4fb);
+    boxes.forEach(b=>b.value=''); boxes[0].focus();
+  }
+});
+
+/* ================= ตอนจบ ================= */
+const chain=$('#chain'), fin=$('#final');
+function showFinalTime(){
+  if(st.start && st.end) $('#finalTime').textContent='เวลาที่ใช้ทั้งหมด ' + fmt(st.end - st.start);
+}
+async function runReveal(){
+  chain.innerHTML=''; chain.classList.remove('out'); chain.style.display='flex';
+  let prev=null;
+  for(const line of CHAIN){
+    const d=document.createElement('div'); d.className='step'; d.textContent=line;
+    chain.appendChild(d); void d.offsetWidth; d.classList.add('show');
+    if(prev) prev.classList.add('dim');
+    prev=d; await wait(1600);
+  }
+  await wait(1400);
+  chain.classList.add('out'); await wait(900); chain.style.display='none';
+  showFinalTime();
+  fin.classList.add('show');
+  await wait(1800);
+  $('#finalText').classList.add('show');
+  await wait(1200);
+  $('#finalTime').classList.add('show');
+}
+
+$('#btn-start').addEventListener('click',()=>{
+  st.start = Date.now(); st.end=null; save(); go('l1');
+});
+
+/* ================= เริ่มต้น / กู้สถานะเมื่อรีเฟรช ================= */
+if(st.stage==='end'){
+  go('end'); chain.style.display='none'; showFinalTime();
+  fin.classList.add('show'); $('#finalText').classList.add('show'); $('#finalTime').classList.add('show');
+} else {
+  go(SCREENS[st.stage] ? st.stage : 'intro');
+}
+})();
+</script>
+</body>
+</html>
