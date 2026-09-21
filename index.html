@@ -96,6 +96,30 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 .chip{min-width:58px;padding:9px 10px;margin:0;border-radius:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1rem;
   background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line);font-weight:400}
 .chip.on{background:rgba(255,143,177,.25);border-color:var(--accent);color:#fff}
+#musicBtn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:65;width:44px;height:44px;margin:0;padding:0;
+  border-radius:50%;font-size:1.2rem;line-height:1;background:rgba(0,0,0,.55);color:#fff;border:1px solid var(--line);backdrop-filter:blur(6px)}
+#musicBtn.on{box-shadow:0 0 0 3px rgba(255,143,177,.4)}
+/* ด่านรหัสลับใต้เงา: หน้าขาวเรียบ ๆ */
+#s-g3{background:#f4f3f1;color:#2b2b2b}
+#s-g3 .plain{width:100%;max-width:520px;text-align:center}
+#s-g3 .tag{color:#8a7a5a}
+#s-g3 .boxes{margin:22px 0 26px}
+.sq{display:inline-block;width:86px;height:86px;border-radius:6px;margin:0 8px}
+.sq1{background:#594F55}
+.sq2{background:#415245}
+.sq3{background:#4D494E45}
+#s-g3 .quote{color:#555;font-size:1.02rem;line-height:1.9;margin:0 0 10px}
+#s-g3 input[type=text]{background:#fff;color:#222;border-color:#cfcbc4}
+#s-g3 ::placeholder{color:#aaa}
+#s-g3 .clue{background:#fff8e6;color:#6b5a2e;border-color:#d8c48a}
+#s-g3 button.ghost{color:#888;border-color:#ccc}
+#s-g3 .fb.bad{color:#c0392b}
+/* ด่านลำดับที่หายไป */
+.glitch{font-family:ui-monospace,Menlo,Consolas,monospace;color:#ff5470;letter-spacing:2px;animation:glitch 1.8s infinite}
+@keyframes glitch{0%,88%,100%{transform:none;opacity:1}90%{transform:translateX(-5px) skewX(8deg);opacity:.6}93%{transform:translateX(6px);opacity:.9}96%{transform:translateX(-3px) skewX(-6deg);opacity:.5}}
+.term{text-align:left;font-family:ui-monospace,Menlo,Consolas,monospace;background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:14px 0;font-size:1.05rem;line-height:1.7}
+.term .err{color:#ff5470;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
 #chain{display:flex;flex-direction:column;align-items:center;gap:6px;transition:opacity .8s}
 #chain.out{opacity:0}
 .step{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.35rem;opacity:0;transform:translateY(8px);transition:all .6s;text-align:center}
@@ -112,6 +136,7 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 <body>
 <div id="stars"></div>
 <div id="timer">⏱ 00:00</div>
+<button id="musicBtn" type="button" aria-label="เปิด/ปิดเพลงประกอบ" title="เพลงประกอบ">🔇</button>
 
 <!-- หน้าหลัก / เริ่มเกม -->
 <section class="screen" id="s-intro">
@@ -120,6 +145,7 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
     <h1>พร้อมหรือยัง?</h1>
     <p>เกมนี้มี<b>การจับเวลา</b></p>
     <p class="muted">เมื่อกดตกลง นาฬิกาจะเริ่มเดิน และเดินต่อเนื่องไปจนกว่าเกมจะจบ<br>(ปิดหน้าเว็บไปแล้วเวลาก็ยังเดินอยู่นะ 😏)</p>
+    <p class="muted">🎵 มีเพลงประกอบให้ กดปุ่มมุมขวาล่างเพื่อเปิด/ปิดเสียง (แนะนำให้ใส่หูฟัง)</p>
     <button id="btn-start">ตกลง</button>
   </div>
 </section>
@@ -185,10 +211,48 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
   </div>
 </section>
 
+<!-- เกมใหม่: ลำดับที่หายไป -->
+<section class="screen" id="s-g4">
+  <div class="card">
+    <div class="tag">ด่านที่ 4 · ลำดับที่หายไป</div>
+    <h2 class="glitch">⚠ SYSTEM ERROR</h2>
+    <p class="muted">ข้อมูลบางส่วนเสียหาย ต้องกู้ลำดับที่หายไปกลับมา</p>
+    <div class="term">
+      <div>00000010</div><div>00000011</div><div>00000101</div><div>00000111</div>
+      <div>00001011</div><div>00001101</div><div>00010001</div>
+      <div class="err">[DATA CORRUPTED]</div><div class="err">[DATA CORRUPTED]</div>
+      <div>00011101</div>
+    </div>
+    <form data-level="g4" autocomplete="off">
+      <input type="text" inputmode="numeric" maxlength="8" placeholder="คำตอบ (ตัวเลข)" aria-label="คำตอบ">
+      <div class="fb"></div>
+      <button type="submit">ตรวจคำตอบ</button>
+    </form>
+    <div class="hints" data-hints="g4"></div>
+    <button class="ghost" data-hintbtn="g4">ขอคำใบ้เพิ่ม</button>
+  </div>
+</section>
+
+<!-- เกมใหม่: รหัสลับใต้เงา -->
+<section class="screen" id="s-g3">
+  <div class="plain">
+    <div class="tag">ด่านที่ 5 · รหัสลับใต้เงา</div>
+    <div class="boxes"><span class="sq sq1"></span><span class="sq sq2"></span><span class="sq sq3"></span></div>
+    <p class="quote">บางครั้งความจริงไม่ได้อยู่ตรงหน้า แต่อยู่ใต้โครงสร้างที่สร้างมันขึ้นมา...<br>สีสันมีภาษาของมัน และจงฟังเสียงเตือนจากความมืด</p>
+    <form data-level="g3" autocomplete="off">
+      <input type="text" placeholder="รหัสผ่าน" autocapitalize="none" aria-label="รหัสผ่าน">
+      <div class="fb"></div>
+      <button type="submit">ตรวจคำตอบ</button>
+    </form>
+    <div class="hints" data-hints="g3"></div>
+    <button class="ghost" data-hintbtn="g3">ขอคำใบ้เพิ่ม</button>
+  </div>
+</section>
+
 <!-- ด่าน 4 (เกมใหม่ 1): สัญญาณรบกวน -->
 <section class="screen" id="s-g1">
   <div class="card">
-    <div class="tag">ด่านที่ 4 · สัญญาณรบกวน</div>
+    <div class="tag">ด่านที่ 6 · สัญญาณรบกวน</div>
     <h2>ภาพนี้ดูเหมือนแค่ความว่างเปล่า<br>แต่มีบางอย่างซ่อนอยู่ในนั้น</h2>
     <canvas id="noise" width="360" height="130" aria-label="ภาพสัญญาณรบกวน"></canvas>
     <div class="slider">🔎 ตัวกรอง (ลากดู)
@@ -209,7 +273,7 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 <!-- ด่าน 5 (เกมใหม่ 2): จำนวนเฉพาะ -->
 <section class="screen" id="s-g2">
   <div class="card">
-    <div class="tag">ด่านที่ 5 · เสียงที่แท้จริง</div>
+    <div class="tag">ด่านที่ 7 · เสียงที่แท้จริง</div>
     <h2>มีเพียงบางตัวเท่านั้นที่พูดความจริง<br>ที่เหลือคือเสียงรบกวน</h2>
     <p class="muted">แตะตัวเลขเพื่อทำเครื่องหมายไว้ช่วยคิด</p>
     <div class="chips" id="chips"></div>
@@ -269,17 +333,34 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 const CALL_CODE = '';
 
 // เฉลยเก็บเป็น hash (ไม่ใช่ข้อความตรง ๆ) กันคนกด "ดูซอร์สโค้ด" แล้วเห็นเฉลย
+// ถ้าอยากใช้เพลงของตัวเอง (ไฟล์ที่ใช้ได้อย่างถูกลิขสิทธิ์) ให้อัปโหลดไฟล์ไว้ข้าง index.html แล้วใส่ชื่อไฟล์ที่นี่ เช่น 'music.mp3'
+// ถ้าเว้นว่างไว้ '' = ใช้เพลงสังเคราะห์ในตัว
+const MUSIC_FILE = '';
+
 const SALT = 'ily|';
 const ANSWERS = {
   l1: [6648583576093859],                              // 4728
   l2: [841439713781871, 6820852403717962],             // iloveu / ilu
   l3: [5593429676915520, 7597455075909167],            // justthewayyouare / ...brunomars
+  g3: [5444827178586438],                              // youaremine
+  g4: [5120042190113848],                              // 1923
   g1: [7001172429081110],                              // midnight
   g2: [6027612211580101],                              // cicada
   l4: [886157181730332],                               // 13234
 };
 
 const HINTS = {
+  g3: [
+    'บนคอมพิวเตอร์ กด F12 (หรือคลิกขวาที่กล่องสี → Inspect) แล้วลองสำรวจกล่องทั้ง 3',
+    'สีแต่ละกล่องมีรหัสเป็นเลขฐาน 16 (Hex) เช่น #594F55 — แบ่งเป็นคู่ ๆ (59, 4F, 55) แล้วแปลงแต่ละคู่เป็นตัวอักษรตามตาราง ASCII',
+    '59 4F 55 คือ "YOU" ลองทำกับอีกสองกล่อง — กล่องที่สามมีตัวอักษรที่ 4 ซ่อนอยู่ในรหัสที่ยาวกว่าปกติ (ค่าความโปร่งใส)',
+    'ถ้ายังไม่เห็นข้อความจากความมืด ให้เปิดแท็บ Console แล้วรอสักครู่ — รหัสผ่านคือคำที่ได้ พิมพ์ติดกันเป็นตัวพิมพ์เล็กทั้งหมด',
+  ],
+  g4: [
+    'แต่ละแถวคือเลขฐาน 2 ลองแปลงเป็นเลขฐาน 10 ก่อน (เช่น 00000101 = 5)',
+    'เมื่อแปลงแล้ว ลองสังเกตว่าตัวเลขพวกนี้มีอะไรพิเศษร่วมกัน (หารลงตัวด้วยอะไรได้บ้าง)',
+    'ที่หายไปมี 2 ตัว ให้ตอบเรียงต่อกันตามลำดับ ไม่เว้นวรรค',
+  ],
   g1: [
     'ภาพนี้ไม่ได้ว่างเปล่า — ลองลากตัวกรองช้า ๆ (ประมาณ 3-4) แล้วดูดี ๆ',
     'สิ่งที่ซ่อนอยู่คือ "กุญแจ" (key) ส่วนข้อความด้านล่างคือ "ต้นฉบับที่ถูกล็อกด้วยกุญแจนั้น"',
@@ -306,14 +387,14 @@ const HINTS = {
 
 const TAUNTS = [
   'อุ๊ย ผิดจ้า 🤭','ไหนบอกว่าเก่งไง~ 😏','ผิดแล้วววว 🐢','สมองกำลังโหลด... ⏳',
-  'เกือบถูก (ถ้าเป็นวันหน้า) 🤣','คิดใหม่อีกทีนะจ๊ะ 🙃','ตอบแบบนี้ยังไม่ผ่านนะ 😜','ฮั่นแน่ เดาสุ่มใช่ไหมเนี่ย 🤨',
+  'เกือบถูก (ถ้าเป็นวันหน้า) 🤣','ระดับคนเล่น Roblox ต้องมาให้ถึงกว่านี้ 🎮','ไม่เป็นไร เดี๋ยวก็ hangout ต่อได้ 😏','คิดใหม่อีกทีนะจ๊ะ 🙃','ตอบแบบนี้ยังไม่ผ่านนะ 😜','ฮั่นแน่ เดาสุ่มใช่ไหมเนี่ย 🤨',
 ];
 const RAIN = ['🤪','😜','🙈','🐒','🤡','🥴','😝'];
 
 const CHEERS = [
   'เก่งมากเลย ✨','ฉลาดที่สุดเลย','ไม่ยอมแพ้เลยสักที 💪','เกือบถึงแล้ว!','ภูมิใจนะ 💛','สมองเทพจริง ๆ',
   'ตั้งใจมากเลยวันนี้','ทำได้เสมอ','เก่งจนน่าหมั่นไส้ 😆','สุดยอดไปเลย 🌟','อีกนิดเดียวจริง ๆ','คนเก่งของเราาา',
-  'ยิ้มหน่อยสิ 😊','ทำได้ดีมากนะ','เชื่อมาตลอดว่าทำได้','เท่มากกก 😎',
+  'ยิ้มหน่อยสิ 😊','สายเกมตัวจริง 🎮','vibe ดีสุด ๆ ✨','เก่งกว่าตอนเล่น Roblox อีก 😆','Minecraft ก็เอาอยู่เหรอเนี่ย ⛏️','ชิลล์ ๆ แต่เก่งนะ 😎','ทำได้ดีมากนะ','เชื่อมาตลอดว่าทำได้','เท่มากกก 😎',
 ];
 const COLORS = ['#ffd08a','#ff8fb1','#a8e6ff','#c9b6ff','#9df0c4','#ffffff'];
 
@@ -334,6 +415,117 @@ const rnd = (a,b) => a + Math.random()*(b-a);
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+/* ================= เพลงประกอบฉาก (สังเคราะห์เสียงในเบราว์เซอร์ ไม่ใช้ไฟล์ ไม่มีลิขสิทธิ์) ================= */
+const Music = (() => {
+  const MOODS = {
+    // อบอุ่น สงบ — หน้าเปิดและด่านต้น ๆ
+    calm:   { bpm:76,  pad:'triangle', lead:'sine',     arp:.50, bassTwice:false,
+              chords:[[60,64,67],[57,60,64],[53,57,60],[55,59,62]], scale:[72,74,76,79,81,84] },
+    // ลึกลับ ตึง ๆ — ด่านปริศนายาก
+    tense:  { bpm:92,  pad:'triangle', lead:'triangle', arp:.55, bassTwice:true,
+              chords:[[57,60,64],[53,57,60],[50,53,57],[52,56,59]], scale:[69,72,74,76,79,81] },
+    // ฉลองตอนตอบถูก
+    joy:    { bpm:108, pad:'triangle', lead:'sine',     arp:.85, bassTwice:true,
+              chords:[[60,64,67],[65,69,72],[67,71,74],[60,64,67]], scale:[72,76,79,81,84,88] },
+    // ช่วงท้าย ช้า ๆ อบอุ่น
+    finale: { bpm:62,  pad:'sine',     lead:'sine',     arp:.38, bassTwice:false,
+              chords:[[53,57,60],[60,64,67],[50,53,57],[58,62,65]], scale:[65,69,72,74,77,81] },
+  };
+  let ctx=null, master=null, bus=null, timer=null, step=0, nextT=0, mood='calm', enabled=false, audioEl=null;
+  const mtof = m => 440*Math.pow(2,(m-69)/12);
+
+  function init(){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return false;
+    ctx = new AC();
+    master = ctx.createGain(); master.gain.value = 0;
+    const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2400;
+    const dly = ctx.createDelay(1.0); dly.delayTime.value=0.42;
+    const fb = ctx.createGain(); fb.gain.value=0.33;
+    const wet = ctx.createGain(); wet.gain.value=0.45;
+    dly.connect(fb); fb.connect(dly); dly.connect(wet); wet.connect(lp);
+    bus = ctx.createGain(); bus.connect(lp); bus.connect(dly);
+    lp.connect(master); master.connect(ctx.destination);
+    return true;
+  }
+  function tone(freq, t, dur, type, peak, atk, rel){
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(peak,t+atk);
+    g.gain.setValueAtTime(peak, Math.max(t+atk, t+dur-rel));
+    g.gain.linearRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(bus); o.start(t); o.stop(t+dur+0.05);
+  }
+  function schedule(){
+    const M=MOODS[mood], eighth=60/M.bpm/2;
+    while(nextT < ctx.currentTime+0.35){
+      const s=step%8, ch=M.chords[Math.floor(step/8)%M.chords.length];
+      if(s===0){
+        ch.forEach(n=>tone(mtof(n),nextT,eighth*8+0.8,M.pad,0.032,0.9,1.3));
+        tone(mtof(ch[0]-12),nextT,eighth*4,'sine',0.085,0.05,eighth*3);
+      }
+      if(s===4 && M.bassTwice) tone(mtof(ch[0]-12),nextT,eighth*3,'sine',0.06,0.05,eighth*2);
+      if(Math.random()<M.arp && (s%2===0 || Math.random()<.35)){
+        const n=M.scale[Math.floor(Math.random()*M.scale.length)];
+        tone(mtof(n),nextT,1.5,M.lead,0.05,0.01,1.5);
+      }
+      nextT+=eighth; step++;
+    }
+  }
+  function start(){
+    enabled=true;
+    if(MUSIC_FILE){
+      if(!audioEl){ audioEl=new Audio(MUSIC_FILE); audioEl.loop=true; audioEl.volume=.6; }
+      audioEl.play().catch(()=>{}); return;
+    }
+    if(!ctx && !init()) return;
+    ctx.resume();
+    if(!timer){ nextT=ctx.currentTime+0.1; step=0; timer=setInterval(schedule,100); }
+    master.gain.cancelScheduledValues(ctx.currentTime);
+    master.gain.setTargetAtTime(0.7,ctx.currentTime,0.6);
+  }
+  function stop(){
+    enabled=false;
+    if(audioEl){ audioEl.pause(); }
+    if(!ctx) return;
+    master.gain.cancelScheduledValues(ctx.currentTime);
+    master.gain.setTargetAtTime(0,ctx.currentTime,0.25);
+    setTimeout(()=>{ if(!enabled && timer){ clearInterval(timer); timer=null; if(ctx.suspend) ctx.suspend(); } },1000);
+  }
+  function setMood(m){
+    if(!MOODS[m] || m===mood) return;
+    mood=m; step=Math.ceil(step/8)*8;   // เปลี่ยนที่ต้นห้องถัดไป
+  }
+  document.addEventListener('visibilitychange',()=>{
+    if(!ctx || !enabled || MUSIC_FILE) return;
+    if(document.hidden) ctx.suspend(); else ctx.resume();
+  });
+  return { start, stop, setMood, isOn:()=>enabled };
+})();
+
+// ปุ่มเปิด/ปิดเพลง (ค่าเริ่มต้น = ปิด เบราว์เซอร์ไม่อนุญาตให้เล่นเสียงเองอยู่แล้ว)
+(function initMusicButton(){
+  const PKEY='puzzle-music-v1', btn=$('#musicBtn');
+  let pref=false;
+  try{ pref = localStorage.getItem(PKEY)==='on'; }catch(e){}
+  const paint=()=>{ btn.textContent = pref ? '🔊' : '🔇'; btn.classList.toggle('on',pref); btn.setAttribute('aria-pressed',pref); };
+  paint();
+  btn.addEventListener('click',()=>{
+    pref = !pref; paint();
+    try{ localStorage.setItem(PKEY, pref?'on':'off'); }catch(e){}
+    if(pref) Music.start(); else Music.stop();
+  });
+  if(pref){   // เคยเปิดไว้: รอการแตะครั้งแรกแล้วค่อยเริ่มเล่น
+    const kick=e=>{
+      if(e.target && e.target.closest && e.target.closest('#musicBtn')) return;
+      Music.start();
+      window.removeEventListener('pointerdown',kick); window.removeEventListener('keydown',kick);
+    };
+    window.addEventListener('pointerdown',kick); window.addEventListener('keydown',kick);
+  }
+})();
 
 /* ================= สถานะ + จับเวลา ================= */
 const KEY = 'puzzle-state-v1';
@@ -356,10 +548,19 @@ function tick(){
 }
 setInterval(tick, 250);
 
-const SCREENS = { intro:'s-intro', l1:'s-l1', l2:'s-l2', call:'s-call', l3:'s-l3', g1:'s-g1', g2:'s-g2', l4:'s-l4', end:'s-end' };
-const NEXT = { l1:'l2', l2:'call', l3:'g1', g1:'g2', g2:'l4' };
+const SCREENS = { intro:'s-intro', l1:'s-l1', l2:'s-l2', call:'s-call', l3:'s-l3', g1:'s-g1', g2:'s-g2', g3:'s-g3', g4:'s-g4', l4:'s-l4', end:'s-end' };
+const MOOD = { intro:'calm', l1:'calm', l2:'calm', call:'calm', l3:'calm', g4:'tense', g3:'tense', g1:'tense', g2:'tense', l4:'finale', end:'finale' };
+const NEXT = { l1:'l2', l2:'call', l3:'g4', g4:'g3', g3:'g1', g1:'g2', g2:'l4' };
+let whisperTimer=null;
+function whisper(){
+  console.log('%cคุณมาถูกทางแล้ว','font-size:22px;font-weight:bold;color:#c0392b');
+  console.log('%cรหัสผ่านคือสิ่งที่สีสันพยายามบอกคุณ (พิมพ์ติดกันตัวพิมพ์เล็กทั้งหมด)','font-size:15px;color:#666');
+}
 function go(stage){
   st.stage = stage; save();
+  clearInterval(whisperTimer);
+  Music.setMood(MOOD[stage]||'calm');
+  if(stage==='g3'){ whisper(); whisperTimer=setInterval(()=>{ if(st.stage==='g3') whisper(); }, 8000); }
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === SCREENS[stage]));
   window.scrollTo(0,0);
   tick();
@@ -508,6 +709,7 @@ l4form.addEventListener('submit', async e=>{
     st.end = Date.now(); save(); tick();
     boxes.forEach(b=>b.disabled=true); $('button[type=submit]',l4form).disabled=true;
     l4fb.className='fb ok'; l4fb.textContent='ถูกต้องทั้งหมด! 🎉';
+    Music.setMood('joy');
     await celebrate();
     go('end');
     await runReveal();
