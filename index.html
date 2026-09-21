@@ -43,8 +43,32 @@ h1,h2,.tag,button,.big{font-family:'Mitr','Sarabun',system-ui,sans-serif}
 .screen.active{display:flex;animation:in .6s ease}
 @keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
+.ascii-decor{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;color:rgba(255,143,177,.28);font:11px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.12em}
+.ascii-decor .corner{position:absolute;white-space:pre;animation:asciiDrift 7s ease-in-out infinite}
+.ascii-decor .tl{top:18px;left:14px}.ascii-decor .tr{top:18px;right:14px;text-align:right;animation-delay:-2s}
+.ascii-decor .bl{bottom:18px;left:14px;animation-delay:-4s}.ascii-decor .br{right:14px;bottom:18px;text-align:right;animation-delay:-6s}
+.ascii-decor .stream{position:absolute;top:-25%;white-space:pre;opacity:.18;animation:asciiFall 13s linear infinite}
+.ascii-decor .s1{left:8%;animation-delay:-5s}.ascii-decor .s2{right:9%;animation-delay:-10s;color:rgba(255,208,138,.45)}
+.ascii-scanlines{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.08;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.18) 4px);animation:scanMove 8s linear infinite}
+@keyframes asciiDrift{0%,100%{opacity:.25;transform:translate(0)}50%{opacity:.65;transform:translate(4px,-3px)}}
+@keyframes asciiFall{from{transform:translateY(0)}to{transform:translateY(150vh)}}
+@keyframes scanMove{from{transform:translateY(0)}to{transform:translateY(8px)}}
+@keyframes asciiFlicker{0%,100%{opacity:.42;transform:translateX(0)}48%{opacity:.58}50%{opacity:.2;transform:translateX(2px)}52%{opacity:.5;transform:translateX(-1px)}}
+
+/* ASCII overlay แบบเคลื่อนไหว (canvas เต็มจอ ตอบสนองต่อเมาส์/นิ้ว) */
+#asciiFx{position:fixed;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;mix-blend-mode:screen}
+#fxBtn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 66px);z-index:65;width:auto;min-width:92px;height:36px;margin:0;padding:0 12px;
+  border-radius:999px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.78rem;line-height:1;background:rgba(0,0,0,.62);color:#fff;border:1px solid var(--line);backdrop-filter:blur(6px)}
+#fxBtn.on{box-shadow:0 0 0 3px rgba(255,143,177,.4)}
+/* ASCII art ประดับตามหน้าต่าง ๆ */
+.ascii-art{display:block;margin:0 auto 10px;text-align:left;width:max-content;max-width:100%;overflow:hidden;white-space:pre;
+  font:clamp(.5rem,2.6vw,.72rem)/1.1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--accent);text-shadow:0 0 10px rgba(255,143,177,.45)}
+.ascii-art.gold{color:var(--accent2);text-shadow:0 0 10px rgba(255,208,138,.4)}
+.ascii-art.red{color:#ff5470;text-shadow:0 0 10px rgba(255,84,112,.4)}
+
 .card{width:100%;max-width:520px;background:var(--card);border:1px solid var(--line);border-radius:22px;
   padding:28px 22px;text-align:center;backdrop-filter:blur(10px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.card::before{content:'[:: ASCII SIGNAL ::]';display:block;margin:-12px 0 12px;color:rgba(255,208,138,.48);font:10px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.16em;animation:asciiFlicker 3.4s steps(2,end) infinite}
 .tag{display:inline-block;font-size:.85rem;color:var(--accent2);letter-spacing:.5px;margin-bottom:8px}
 h1{font-size:2rem;margin:.1em 0 .4em;font-weight:500}
 h2{font-size:1.45rem;margin:.1em 0 .5em;font-weight:500;line-height:1.4}
@@ -66,6 +90,8 @@ button{cursor:pointer;border:0;border-radius:14px;font-size:1rem;padding:13px 24
   background:linear-gradient(135deg,var(--accent),var(--accent2));font-weight:500;transition:transform .15s,filter .15s}
 button:hover{filter:brightness(1.07)} button:active{transform:scale(.97)}
 button[disabled]{opacity:.5;cursor:default}
+.cutscene-btn{display:none;margin:14px auto 0}
+.cutscene-btn.show{display:block}
 button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);padding:8px 16px;font-size:.9rem;margin-top:10px}
 
 .fb{min-height:1.6em;margin-top:12px;font-weight:600}
@@ -88,7 +114,11 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 @keyframes flyR{from{transform:translateX(100vw)}to{transform:translateX(-110%)}}
 @keyframes flyL{from{transform:translateX(-110%)}to{transform:translateX(100vw)}}
 
-#noise{display:block;width:100%;max-width:360px;margin:12px auto 0;border-radius:12px;image-rendering:pixelated;background:#000;transition:filter .1s}
+/* ด่านที่ 6: ภาพสัญญาณรบกวน (ไม่มีอะไรทับบนภาพ เพื่อให้อ่านข้อความออกชัด) */
+.noise-frame{position:relative;width:100%;max-width:420px;margin:6px auto 0;overflow:hidden;border:1px solid rgba(255,143,177,.35);border-radius:12px;background:#000;box-shadow:0 0 24px rgba(255,143,177,.14)}
+#noise{display:block;width:100%;height:auto;aspect-ratio:420 / 150;image-rendering:pixelated;background:#000}
+.ascii-strip{margin:8px auto 0;max-width:420px;font:.72rem/1.15 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.1em;color:rgba(255,143,177,.75);white-space:pre;overflow:hidden;text-align:center}
+.ascii-strip.sigbar{color:var(--accent2);margin-top:6px}
 .slider{margin:10px auto 0;max-width:360px;text-align:left;color:var(--muted);font-size:.9rem}
 .slider input{width:100%;accent-color:var(--accent);margin-top:4px}
 .cipher{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.6rem;letter-spacing:4px;color:var(--accent2)}
@@ -96,8 +126,8 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 .chip{min-width:58px;padding:9px 10px;margin:0;border-radius:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1rem;
   background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line);font-weight:400}
 .chip.on{background:rgba(255,143,177,.25);border-color:var(--accent);color:#fff}
-#musicBtn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:65;width:44px;height:44px;margin:0;padding:0;
-  border-radius:50%;font-size:1.2rem;line-height:1;background:rgba(0,0,0,.55);color:#fff;border:1px solid var(--line);backdrop-filter:blur(6px)}
+#musicBtn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:65;width:auto;min-width:92px;height:44px;margin:0;padding:0 12px;
+  border-radius:999px;font-size:.85rem;line-height:1;background:rgba(0,0,0,.62);color:#fff;border:1px solid var(--line);backdrop-filter:blur(6px)}
 #musicBtn.on{box-shadow:0 0 0 3px rgba(255,143,177,.4)}
 /* ด่านรหัสลับใต้เงา: หน้าขาวเรียบ ๆ */
 #s-g3{background:#f4f3f1;color:#2b2b2b}
@@ -131,16 +161,50 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 .big{font-size:clamp(2.4rem,11vw,4rem);margin:0 0 18px;color:#fff;text-shadow:0 0 30px rgba(255,143,177,.8),0 0 60px rgba(255,143,177,.5)}
 #final .sub{opacity:0;transition:opacity 1.6s;max-width:460px;margin:0 auto}
 #final .sub.show{opacity:1}
+.love-game{display:none;max-width:520px;margin:28px auto 0;padding:22px;border:1px solid rgba(255,143,177,.35);border-radius:22px;background:rgba(0,0,0,.2);animation:in .8s ease}
+.love-game.show{display:block}
+.love-photo{display:block;width:min(100%,300px);max-height:300px;object-fit:cover;margin:0 auto 18px;border:3px solid rgba(255,208,138,.65);border-radius:18px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.love-question{margin:18px 0 10px;color:var(--accent2);font:500 1.3rem 'Mitr','Sarabun',sans-serif}
+.love-options{display:grid;gap:9px}
+.love-options button{width:100%;margin:0;padding:11px 14px;background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line);font-size:.98rem}
+.love-options button:hover,.love-options button.selected{background:rgba(255,143,177,.28);border-color:var(--accent)}
+.love-result{min-height:1.6em;margin-top:14px;color:var(--ok);font-weight:600}
+.love-writer{display:none;position:relative;margin-top:18px;padding:14px;border:1px dashed rgba(255,208,138,.5);border-radius:14px;background:rgba(255,208,138,.08)}
+.love-writer.show{display:block;animation:in .6s ease}
+.love-writer button{margin:0 auto;background:rgba(255,143,177,.2);color:var(--text);border:1px solid var(--accent)}
+.love-writer textarea{display:none;min-height:72px;margin-top:10px;text-align:left}
+.love-writer textarea.show{display:block}
+.writer-status{min-height:1.4em;margin-top:7px;color:var(--accent2);font-size:.9rem}
+.mouse-pointer{position:absolute;top:45px;left:calc(50% - 9px);z-index:2;font-size:1.35rem;opacity:0;pointer-events:none}
+.love-writer.animate .mouse-pointer{animation:mouseWrite 1.3s ease-in-out forwards}
+@keyframes mouseWrite{0%{opacity:0;transform:translate(-110px,-35px)}25%,75%{opacity:1}100%{opacity:1;transform:translate(0,0)}}
+.love-next{display:none}
+.love-next.show{display:block;animation:in .7s ease}
 </style>
 </head>
 <body>
 <div id="stars"></div>
+<canvas id="asciiFx" aria-hidden="true"></canvas>
+<div class="ascii-decor" aria-hidden="true">
+  <div class="corner tl">┌─[ SYSTEM ONLINE ]─┐</div>
+  <div class="corner tr">┌─[ 01:01:01 ]─┐</div>
+  <div class="corner bl">└─[ SIGNAL // OK ]─┘</div>
+  <div class="corner br">└─[ PLAY ]─┘</div>
+  <div class="stream s1">+ . # * : + . # * :<br>  # * : + . # * : +<br>+ . # * : + . # * :</div>
+  <div class="stream s2">0 1 0 1<br>  1 0 1 0<br>0 1 0 1</div>
+</div>
+<div class="ascii-scanlines" aria-hidden="true"></div>
 <div id="timer">⏱ 00:00</div>
-<button id="musicBtn" type="button" aria-label="เปิด/ปิดเพลงประกอบ" title="เพลงประกอบ">🔇</button>
+<button id="fxBtn" type="button" aria-label="เปิด/ปิดเอฟเฟกต์ ASCII" title="เปิด/ปิดเอฟเฟกต์ ASCII">▓ ASCII</button>
+<button id="musicBtn" type="button" aria-label="เปิด/ปิดเพลงประกอบ" title="เปิด/ปิดเพลงประกอบ">🔇 เพลง</button>
 
 <!-- หน้าหลัก / เริ่มเกม -->
 <section class="screen" id="s-intro">
   <div class="card">
+<pre class="ascii-art" aria-hidden="true"> __  __ ___ ___ ___ ___ ___  _  _ 
+|  \/  |_ _/ __/ __|_ _/ _ \| \| |
+| |\/| || |\__ \__ \| | (_) | .` |
+|_|  |_|___|___/___/___\___/|_|\_|</pre>
     <div class="tag">ภารกิจลับ 🔐</div>
     <h1>พร้อมหรือยัง?</h1>
     <p>เกมนี้มี<b>การจับเวลา</b></p>
@@ -184,7 +248,15 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 <!-- หลังด่าน 2: ให้โทร -->
 <section class="screen" id="s-call">
   <div class="card">
-    <div style="font-size:3rem">📞</div>
+<pre class="ascii-art gold" aria-hidden="true"> .-----------.
+ | .-------. |
+ | | RING  | |
+ | | RING  | |
+ | '-------' |
+ |  o  o  o  |
+ |  o  o  o  |
+ |  o  o  o  |
+ '-----------'</pre>
     <h2>ให้โทรหาแล้วบอกรหัสลับนั้น</h2>
     <p class="muted">โทรหาผม แล้วผมจะบอกคำใบ้ต่อไปให้</p>
     <form id="callForm" autocomplete="off" hidden>
@@ -214,6 +286,10 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 <!-- เกมใหม่: ลำดับที่หายไป -->
 <section class="screen" id="s-g4">
   <div class="card">
+<pre class="ascii-art red" aria-hidden="true">    /\
+   /  \
+  / !! \
+ /______\</pre>
     <div class="tag">ด่านที่ 4 · ลำดับที่หายไป</div>
     <h2 class="glitch">⚠ SYSTEM ERROR</h2>
     <p class="muted">ข้อมูลบางส่วนเสียหาย ต้องกู้ลำดับที่หายไปกลับมา</p>
@@ -249,14 +325,18 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
   </div>
 </section>
 
-<!-- ด่าน 4 (เกมใหม่ 1): สัญญาณรบกวน -->
+<!-- ด่าน 6: สัญญาณรบกวน -->
 <section class="screen" id="s-g1">
   <div class="card">
     <div class="tag">ด่านที่ 6 · สัญญาณรบกวน</div>
     <h2>ภาพนี้ดูเหมือนแค่ความว่างเปล่า<br>แต่มีบางอย่างซ่อนอยู่ในนั้น</h2>
-    <canvas id="noise" width="360" height="130" aria-label="ภาพสัญญาณรบกวน"></canvas>
-    <div class="slider">🔎 ตัวกรอง (ลากดู)
-      <input type="range" id="blurRange" min="0" max="7" step="0.1" value="0" aria-label="ตัวกรอง">
+    <div class="ascii-strip" aria-hidden="true">+--------[ SIGNAL RECEIVER ]--------+</div>
+    <div class="noise-frame">
+      <canvas id="noise" width="420" height="150" aria-label="ภาพสัญญาณรบกวน"></canvas>
+    </div>
+    <div class="ascii-strip sigbar" id="sigBar" aria-hidden="true">[..........] 0%</div>
+    <div class="slider">🔎 ตัวกรอง (ลากไปทางขวาช้า ๆ)
+      <input type="range" id="blurRange" min="0" max="100" step="1" value="0" aria-label="ตัวกรอง">
     </div>
     <p class="muted" style="margin-top:16px">ข้อความที่ถูกเข้ารหัสไว้</p>
     <div class="cipher">YWRA UUVG</div>
@@ -270,7 +350,7 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
   </div>
 </section>
 
-<!-- ด่าน 5 (เกมใหม่ 2): จำนวนเฉพาะ -->
+<!-- ด่าน 7: จำนวนเฉพาะ -->
 <section class="screen" id="s-g2">
   <div class="card">
     <div class="tag">ด่านที่ 7 · เสียงที่แท้จริง</div>
@@ -287,7 +367,7 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
   </div>
 </section>
 
-<!-- ด่าน 4: กลับมาหน้าหลัก -->
+<!-- ด่านสุดท้าย: กลับมาหน้าหลัก -->
 <section class="screen" id="s-l4">
   <div class="card" id="l4card">
     <div class="tag">ด่านสุดท้าย · กลับมาที่หน้าหลัก</div>
@@ -305,6 +385,7 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
       </div>
       <div class="fb"></div>
       <button type="submit">ยืนยัน</button>
+      <button type="button" class="cutscene-btn" id="btn-cutscene">เข้าสู่คัตซีน</button>
     </form>
     <div class="hints" data-hints="l4"></div>
     <button class="ghost" data-hintbtn="l4">ขอคำใบ้เพิ่ม</button>
@@ -317,8 +398,39 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
     <div id="chain"></div>
     <div id="final">
       <div class="big">ชังเทอลัก</div>
+<pre class="ascii-art" aria-hidden="true">  .:::.   .:::.
+ :::::::.:::::::
+ ':::::::::::::'
+   ':::::::::'
+     ':::::'
+       ':'</pre>
       <p class="sub" id="finalText">เกมจบแล้วคุณไปได้ครับ<br>แค่อยากให้โทรหา แต่ไม่ต้องโทรมาหาก็ได้ครับ<br>ผมแค่รออยู่</p>
       <p class="muted sub" id="finalTime" style="margin-top:22px"></p>
+      <div class="love-game" id="loveGame">
+        <img class="love-photo" id="lovePhoto" src="assets/person.jpg" alt="รูปคนที่อยู่ในภารกิจ">
+        <div class="love-question">คนนี้น่ารักจริงไหม?</div>
+        <div class="love-options" id="cuteOptions">
+          <button type="button" data-cute="yes">น่ารักจริง น่ารักที่สุด</button>
+          <button type="button" data-cute="very">น่ารักสิ เห็นแล้วต้องยิ้ม</button>
+        </div>
+        <div class="love-writer" id="loveWriter">
+          <span class="mouse-pointer" aria-hidden="true">🖱️</span>
+          <button type="button" id="addLoveNote">เพิ่มช่องข้อความ</button>
+          <div class="writer-status" id="writerStatus"></div>
+          <textarea id="loveNote" aria-label="ข้อความรัก" readonly></textarea>
+        </div>
+        <div class="love-next" id="loveNext">
+          <div class="love-question">ยังรักผมไหม?</div>
+          <div class="love-options" id="loveOptions">
+          <button type="button" data-love="1">1. รักมากๆ รักที่สุดดดด</button>
+          <button type="button" data-love="2">2. รักมั้ง อาจจะแต่รักแน่นอน</button>
+          <button type="button" data-love="3">3. รักสิ ใส่ใจขนาดนี้</button>
+          <button type="button" data-love="4">4. รักนะ พยายามขนาดนี้</button>
+          <button type="button" data-love="5">5. ไม่รัก (โกหก อาจมีคนยิ้มอยู่)</button>
+          </div>
+        </div>
+        <div class="love-result" id="loveResult" aria-live="polite"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -332,11 +444,15 @@ button.ghost{background:transparent;color:var(--muted);border:1px solid var(--li
 // รหัสที่ต้องบอกทางโทรศัพท์ก่อนไปด่าน 3 — ถ้าเว้นว่างไว้ '' = ไม่ล็อก (มีปุ่มกดไปต่อเลย)
 const CALL_CODE = '';
 
-// เฉลยเก็บเป็น hash (ไม่ใช่ข้อความตรง ๆ) กันคนกด "ดูซอร์สโค้ด" แล้วเห็นเฉลย
-// ถ้าอยากใช้เพลงของตัวเอง (ไฟล์ที่ใช้ได้อย่างถูกลิขสิทธิ์) ให้อัปโหลดไฟล์ไว้ข้าง index.html แล้วใส่ชื่อไฟล์ที่นี่ เช่น 'music.mp3'
-// ถ้าเว้นว่างไว้ '' = ใช้เพลงสังเคราะห์ในตัว
-const MUSIC_FILE = '';
+// เพลงประกอบ: ถ้าไม่มีไฟล์ตามพาธด้านล่าง (หรือเว้นว่าง '') เว็บจะใช้เพลงสังเคราะห์ในตัวแทนโดยอัตโนมัติ
+// ไฟล์เพลงต้องเป็นไฟล์ที่คุณมีสิทธิ์นำมาเผยแพร่ และอยู่ในโฟลเดอร์ audio
+const MUSIC_TRACKS = {
+  calm: 'audio/your-love.mp3',
+  tense: 'audio/taste.mp3',
+  finale: 'audio/as-if-its-your-last.mp3',
+};
 
+// เฉลยเก็บเป็น hash (ไม่ใช่ข้อความตรง ๆ) กันคนกด "ดูซอร์สโค้ด" แล้วเห็นเฉลย
 const SALT = 'ily|';
 const ANSWERS = {
   l1: [6648583576093859],                              // 4728
@@ -362,7 +478,7 @@ const HINTS = {
     'ที่หายไปมี 2 ตัว ให้ตอบเรียงต่อกันตามลำดับ ไม่เว้นวรรค',
   ],
   g1: [
-    'ภาพนี้ไม่ได้ว่างเปล่า — ลองลากตัวกรองช้า ๆ (ประมาณ 3-4) แล้วดูดี ๆ',
+    'ภาพนี้ไม่ได้ว่างเปล่า — ลองลากตัวกรองไปทางขวาช้า ๆ ยิ่งไปทางขวา ข้อความยิ่งชัด',
     'สิ่งที่ซ่อนอยู่คือ "กุญแจ" (key) ส่วนข้อความด้านล่างคือ "ต้นฉบับที่ถูกล็อกด้วยกุญแจนั้น"',
     'รหัสชนิดนี้ชื่อ Vigenère cipher — คือ Caesar cipher ที่เลื่อนไม่เท่ากันทุกตัว โดยใช้ตัวอักษรของกุญแจวนซ้ำไปเรื่อย ๆ',
     'ถอดรหัส: เอาตัวอักษรของข้อความ "ลบ" ด้วยตัวอักษรของกุญแจทีละตัว (A=0, B=1, ... Z=25) ถ้าติดลบให้บวก 26 — หรือค้นคำว่า "Vigenere decoder" แล้วใส่ข้อความกับกุญแจก็ได้',
@@ -415,8 +531,88 @@ const rnd = (a,b) => a + Math.random()*(b-a);
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-/* ================= เพลงประกอบฉาก (สังเคราะห์เสียงในเบราว์เซอร์ ไม่ใช้ไฟล์ ไม่มีลิขสิทธิ์) ================= */
+/* ================= ASCII overlay (ตัวอักษรลอยทับหน้าจอ ตอบสนองต่อเมาส์/นิ้ว) ================= */
+const AsciiFx = (() => {
+  const RAMP=' .`:-=+*#%@', N=RAMP.length-1;
+  const cv=$('#asciiFx'), ctx=cv.getContext('2d');
+  const COL=[];
+  for(let k=1;k<=N;k++){ const a=(0.05+0.2*k/N).toFixed(3); COL[k]= k%2 ? 'rgba(255,143,177,'+a+')' : 'rgba(190,170,255,'+a+')'; }
+  let W=0,H=0,cw=12,ch=18,cols=0,rows=0,idx=new Uint8Array(0),raf=0,last=0,on=true,boost=1,px=-999,py=-999;
+  function resize(){
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    W=window.innerWidth; H=window.innerHeight;
+    cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    cw=Math.max(11,Math.round(W/70)); ch=Math.round(cw*1.55);
+    cols=Math.ceil(W/cw); rows=Math.ceil(H/ch); idx=new Uint8Array(cols*rows);
+    ctx.font=Math.round(cw*1.25)+'px ui-monospace,Menlo,Consolas,monospace'; ctx.textBaseline='top';
+    if(reduceMotion && on) draw(0);
+  }
+  function draw(now){
+    const t=now/1000; ctx.clearRect(0,0,W,H);
+    for(let y=0;y<rows;y++) for(let x=0;x<cols;x++){
+      let v=(Math.sin(x*.13+t*.8+Math.sin(y*.17+t*.5)*1.6)+Math.sin(y*.21-t*.6+Math.cos(x*.09+t*.3)*1.4)+2)/4;
+      const dx=x*cw+cw/2-px, dy=y*ch+ch/2-py;
+      if(dx>-170 && dx<170 && dy>-170 && dy<170){
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<170){ const f=1-d/170; v+=f*.35+f*.25*Math.sin(d*.09-t*6); }
+      }
+      v=(v-.56)*boost*2.4;
+      idx[y*cols+x]= v>0 ? Math.min(N,1+Math.floor(v*N)) : 0;
+    }
+    for(let k=1;k<=N;k++){
+      ctx.fillStyle=COL[k]; const chr=RAMP[k];
+      for(let y=0;y<rows;y++) for(let x=0;x<cols;x++) if(idx[y*cols+x]===k) ctx.fillText(chr,x*cw,y*ch);
+    }
+  }
+  function frame(now){ raf=requestAnimationFrame(frame); if(now-last<90) return; last=now; draw(now); }
+  function start(){ if(reduceMotion){ draw(0); return; } if(!raf) raf=requestAnimationFrame(frame); }
+  function stop(){ cancelAnimationFrame(raf); raf=0; ctx.clearRect(0,0,W,H); }
+  function set(v){ on=v; cv.style.display=v?'block':'none'; if(v) start(); else stop(); }
+  window.addEventListener('resize',resize);
+  window.addEventListener('pointermove',e=>{ px=e.clientX; py=e.clientY; },{passive:true});
+  window.addEventListener('pointerup',e=>{ if(e.pointerType==='touch'){ px=-999; py=-999; } },{passive:true});
+  document.documentElement.addEventListener('mouseleave',()=>{ px=-999; py=-999; });
+  document.addEventListener('visibilitychange',()=>{ if(!on) return; if(document.hidden) stop(); else start(); });
+  resize();
+  return { set, setBoost:v=>{ boost=v; }, isOn:()=>on };
+})();
+
+(function initFxButton(){
+  const PKEY='puzzle-fx-v1', btn=$('#fxBtn');
+  let pref=true;
+  try{ pref = localStorage.getItem(PKEY)!=='off'; }catch(e){}
+  const paint=()=>{ btn.textContent = pref ? '▓ ASCII' : '░ ASCII'; btn.classList.toggle('on',pref); btn.setAttribute('aria-pressed',pref); };
+  paint(); AsciiFx.set(pref);
+  btn.addEventListener('click',()=>{
+    pref=!pref; paint(); AsciiFx.set(pref);
+    try{ localStorage.setItem(PKEY,pref?'on':'off'); }catch(e){}
+  });
+})();
+
+// เอฟเฟกต์ตัวอักษรสุ่มค่อย ๆ ถอดรหัสเป็นข้อความจริง ตอนขึ้นหน้าใหม่
+function scrambleIn(section){
+  if(!section || reduceMotion) return;
+  const GL='!<>-_\\/[]{}=+*^?#%@01';
+  $$('.tag,h1,h2',section).forEach(el=>{
+    const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT), nodes=[];
+    while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(n=>{
+      const orig=n.nodeValue; if(!orig.trim()) return;
+      const chars=[...orig], t0=performance.now(), dur=600+Math.random()*400;
+      (function step(now){
+        const p=Math.min(1,(now-t0)/dur);
+        n.nodeValue = p>=1 ? orig : chars.map((c,i)=> (/\s/.test(c) || i/chars.length < p) ? c : GL[Math.floor(Math.random()*GL.length)]).join('');
+        if(p<1) requestAnimationFrame(step);
+      })(t0);
+    });
+  });
+}
+
+/* ================= เพลงประกอบฉาก ================= */
+// ใช้ไฟล์เพลงตาม MUSIC_TRACKS ถ้าเปิดได้ ถ้าไม่มีไฟล์จะสลับไปใช้เพลงสังเคราะห์ในตัว (ไม่มีลิขสิทธิ์) อัตโนมัติ
 const Music = (() => {
   const MOODS = {
     // อบอุ่น สงบ — หน้าเปิดและด่านต้น ๆ
@@ -432,7 +628,8 @@ const Music = (() => {
     finale: { bpm:62,  pad:'sine',     lead:'sine',     arp:.38, bassTwice:false,
               chords:[[53,57,60],[60,64,67],[50,53,57],[58,62,65]], scale:[65,69,72,74,77,81] },
   };
-  let ctx=null, master=null, bus=null, timer=null, step=0, nextT=0, mood='calm', enabled=false, audioEl=null;
+  let ctx=null, master=null, bus=null, timer=null, step=0, nextT=0, mood='calm', enabled=false, audioEl=null, audioMood=null;
+  const failed={};   // mood ไหนที่โหลดไฟล์เพลงไม่ได้ → ใช้เพลงสังเคราะห์แทน
   const mtof = m => 440*Math.pow(2,(m-69)/12);
 
   function init(){
@@ -449,15 +646,28 @@ const Music = (() => {
     lp.connect(master); master.connect(ctx.destination);
     return true;
   }
-  function tone(freq, t, dur, type, peak, atk, rel){
+  function tone(freq, t, dur, type, peak, atk, rel, target=bus){
     const o=ctx.createOscillator(), g=ctx.createGain();
     o.type=type; o.frequency.setValueAtTime(freq,t);
     g.gain.setValueAtTime(0.0001,t);
     g.gain.linearRampToValueAtTime(peak,t+atk);
     g.gain.setValueAtTime(peak, Math.max(t+atk, t+dur-rel));
     g.gain.linearRampToValueAtTime(0.0001,t+dur);
-    o.connect(g); g.connect(bus); o.start(t); o.stop(t+dur+0.05);
+    o.connect(g); g.connect(target); o.start(t); o.stop(t+dur+0.05);
   }
+  function effect(notes, type='sine'){
+    if(!ctx && !init()) return;
+    if(!master) return;
+    if(ctx.state==='suspended') ctx.resume();
+    const now=ctx.currentTime;
+    master.gain.cancelScheduledValues(now);
+    master.gain.setTargetAtTime(0.7,now,0.01);
+    notes.forEach((n,i)=>tone(mtof(n),now+i*.07,.16,type,.12,.008,.08));
+    if(!enabled) setTimeout(()=>{ if(ctx && !enabled) master.gain.setTargetAtTime(0,ctx.currentTime,.12); },450);
+  }
+  const click = () => effect([72], 'square');
+  const wrong = () => effect([60,56], 'sawtooth');
+  const correct = () => effect([72,76,79], 'sine');
   function schedule(){
     const M=MOODS[mood], eighth=60/M.bpm/2;
     while(nextT < ctx.currentTime+0.35){
@@ -474,12 +684,29 @@ const Music = (() => {
       nextT+=eighth; step++;
     }
   }
+  function silenceSynth(){
+    if(timer){ clearInterval(timer); timer=null; }
+    if(ctx && master){ master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0,ctx.currentTime,0.25); }
+  }
+  function useSynthInstead(){
+    failed[mood]=true; audioEl=null; audioMood=null;
+    if(enabled) start();
+  }
   function start(){
     enabled=true;
-    if(MUSIC_FILE){
-      if(!audioEl){ audioEl=new Audio(MUSIC_FILE); audioEl.loop=true; audioEl.volume=.6; }
-      audioEl.play().catch(()=>{}); return;
+    const track = failed[mood] ? '' : (MUSIC_TRACKS[mood] || '');
+    if(track){
+      silenceSynth();
+      if(!audioEl || audioMood!==mood){
+        if(audioEl) audioEl.pause();
+        audioEl=new Audio(track); audioEl.loop=true; audioEl.volume=.6; audioEl.preload='auto';
+        audioEl.addEventListener('error',useSynthInstead,{once:true});
+        audioMood=mood;
+      }
+      audioEl.play().catch(err=>{ if(err && err.name==='NotSupportedError') useSynthInstead(); });
+      return;
     }
+    if(audioEl){ audioEl.pause(); audioEl=null; audioMood=null; }
     if(!ctx && !init()) return;
     ctx.resume();
     if(!timer){ nextT=ctx.currentTime+0.1; step=0; timer=setInterval(schedule,100); }
@@ -488,7 +715,7 @@ const Music = (() => {
   }
   function stop(){
     enabled=false;
-    if(audioEl){ audioEl.pause(); }
+    if(audioEl){ audioEl.pause(); audioEl.currentTime=0; }
     if(!ctx) return;
     master.gain.cancelScheduledValues(ctx.currentTime);
     master.gain.setTargetAtTime(0,ctx.currentTime,0.25);
@@ -497,12 +724,13 @@ const Music = (() => {
   function setMood(m){
     if(!MOODS[m] || m===mood) return;
     mood=m; step=Math.ceil(step/8)*8;   // เปลี่ยนที่ต้นห้องถัดไป
+    if(enabled) start();
   }
   document.addEventListener('visibilitychange',()=>{
-    if(!ctx || !enabled || MUSIC_FILE) return;
+    if(!ctx || !enabled || audioEl) return;
     if(document.hidden) ctx.suspend(); else ctx.resume();
   });
-  return { start, stop, setMood, isOn:()=>enabled };
+  return { start, stop, setMood, click, wrong, correct, isOn:()=>enabled };
 })();
 
 // ปุ่มเปิด/ปิดเพลง (ค่าเริ่มต้น = ปิด เบราว์เซอร์ไม่อนุญาตให้เล่นเสียงเองอยู่แล้ว)
@@ -510,7 +738,7 @@ const Music = (() => {
   const PKEY='puzzle-music-v1', btn=$('#musicBtn');
   let pref=false;
   try{ pref = localStorage.getItem(PKEY)==='on'; }catch(e){}
-  const paint=()=>{ btn.textContent = pref ? '🔊' : '🔇'; btn.classList.toggle('on',pref); btn.setAttribute('aria-pressed',pref); };
+  const paint=()=>{ btn.textContent = pref ? '🔊 เพลง' : '🔇 เพลง'; btn.classList.toggle('on',pref); btn.setAttribute('aria-pressed',pref); };
   paint();
   btn.addEventListener('click',()=>{
     pref = !pref; paint();
@@ -560,10 +788,12 @@ function go(stage){
   st.stage = stage; save();
   clearInterval(whisperTimer);
   Music.setMood(MOOD[stage]||'calm');
+  AsciiFx.setBoost(stage==='end' ? 1.35 : 1);
   if(stage==='g3'){ whisper(); whisperTimer=setInterval(()=>{ if(st.stage==='g3') whisper(); }, 8000); }
   $$('.screen').forEach(s => s.classList.toggle('active', s.id === SCREENS[stage]));
   window.scrollTo(0,0);
   tick();
+  if(stage!=='end') scrambleIn($('#'+SCREENS[stage]));
   const inp = $('#'+SCREENS[stage]+' input[type=text], #'+SCREENS[stage]+' textarea');
   if (inp && stage !== 'intro' && stage !== 'end') setTimeout(()=>inp.focus({preventScroll:true}), 400);
 }
@@ -584,6 +814,7 @@ function rain(){
 function wrong(card, fb){
   card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
   fb.className='fb bad'; fb.textContent = pick(TAUNTS);
+  Music.wrong();
   rain();
 }
 function spawnFly(){
@@ -599,6 +830,7 @@ function spawnFly(){
   setTimeout(()=>e.remove(), d*1000+300);
 }
 async function celebrate(){
+  AsciiFx.setBoost(1.9);   // ตัวอักษร ASCII สว่างและหนาแน่นขึ้นตอนฉลอง
   for(let i=0;i<26;i++){ spawnFly(); await wait(380); }
   await wait(6500);
 }
@@ -627,34 +859,56 @@ $$('form[data-level]').forEach(form=>{
     if(!field.value.trim()) return;
     if(isRight(lv, field.value)){
       fb.className='fb ok'; fb.textContent='ถูกต้อง! ✨';
+      Music.correct();
       setTimeout(()=>{ go(NEXT[lv]); fb.textContent=''; }, 900);
     } else { wrong(card, fb); }
   });
 });
 
-/* ================= ด่าน 4: ภาพสัญญาณรบกวน ================= */
+/* ================= ด่าน 6: ภาพสัญญาณรบกวน ================= */
+// ข้อความ KEY: MOON ซ่อนอยู่ในความหนาแน่นของจุดขาว/ดำ (ตัวหนังสือมีจุดขาวมากกว่าพื้นหลัง)
+// ตัวกรองทำงานโดยหาค่าเฉลี่ยของจุดรอบข้าง (ยิ่งลากขวา ยิ่งลดสัญญาณรบกวน) แล้วเพิ่มความคมชัดของภาพ
 (function initNoise(){
-  const c=$('#noise'), w=c.width, h=c.height, ctx=c.getContext('2d');
+  const c=$('#noise'), w=420, h=150, ctx=c.getContext('2d');
+  c.width=w; c.height=h;
   const m=document.createElement('canvas'); m.width=w; m.height=h;
-  const mc=m.getContext('2d');
+  const mc=m.getContext('2d'), TXT='KEY: MOON', FONT='"DejaVu Sans",Arial,Helvetica,sans-serif';
   mc.fillStyle='#000'; mc.fillRect(0,0,w,h);
-  mc.fillStyle='#fff'; mc.strokeStyle='#fff'; mc.lineWidth=2;
-  mc.font='bold 50px "DejaVu Sans",Arial,Helvetica,sans-serif';
+  for(let size=90; size>20; size-=2){ mc.font='bold '+size+'px '+FONT; if(mc.measureText(TXT).width<=w*0.88) break; }
   mc.textAlign='center'; mc.textBaseline='middle';
-  mc.strokeText('KEY: MOON', w/2, h/2); mc.fillText('KEY: MOON', w/2, h/2);
-  const md=mc.getImageData(0,0,w,h).data, img=ctx.createImageData(w,h);
-  for(let i=0;i<w*h;i++){
-    const inside = md[i*4] > 128;
-    const v = Math.random() < (inside ? 0.70 : 0.50) ? 255 : 0;
-    img.data[i*4]=img.data[i*4+1]=img.data[i*4+2]=v; img.data[i*4+3]=255;
+  mc.fillStyle='#fff'; mc.strokeStyle='#fff'; mc.lineWidth=3; mc.lineJoin='round';
+  mc.strokeText(TXT,w/2,h/2+2); mc.fillText(TXT,w/2,h/2+2);
+  const md=mc.getImageData(0,0,w,h).data, raw=new Float32Array(w*h);
+  for(let i=0;i<w*h;i++) raw[i] = Math.random() < (md[i*4]>128 ? 0.74 : 0.5) ? 1 : 0;
+  const W1=w+1, I=new Float64Array(W1*(h+1));            // integral image สำหรับหาค่าเฉลี่ยเร็ว ๆ
+  for(let y=0;y<h;y++){ let row=0; for(let x=0;x<w;x++){ row+=raw[y*w+x]; I[(y+1)*W1+x+1]=I[y*W1+x+1]+row; } }
+  const img=ctx.createImageData(w,h), d=img.data, r=$('#blurRange'), bar=$('#sigBar');
+  function render(){
+    const v=+r.value, rad=Math.round(v/100*5), wd=0.5-0.4*v/100;
+    for(let y=0;y<h;y++){
+      const y0=Math.max(0,y-rad), y1=Math.min(h-1,y+rad);
+      for(let x=0;x<w;x++){
+        let mv;
+        if(rad===0) mv=raw[y*w+x];
+        else {
+          const x0=Math.max(0,x-rad), x1=Math.min(w-1,x+rad);
+          mv=(I[(y1+1)*W1+x1+1]-I[y0*W1+x1+1]-I[(y1+1)*W1+x0]+I[y0*W1+x0])/((y1-y0+1)*(x1-x0+1));
+        }
+        let o=0.5+(mv-0.625)/(2*wd); o=o<0?0:o>1?1:o;
+        const p=(y*w+x)*4, gv=(o*255)|0;
+        d[p]=d[p+1]=d[p+2]=gv; d[p+3]=255;
+      }
+    }
+    ctx.putImageData(img,0,0);
+    const n=Math.round(v/10);
+    bar.textContent='['+'#'.repeat(n)+'.'.repeat(10-n)+'] '+Math.round(v)+'%';
   }
-  ctx.putImageData(img,0,0);
-  const r=$('#blurRange');
-  const apply=()=>{ const b=parseFloat(r.value); c.style.filter = b>0 ? 'blur('+b+'px) contrast('+(1+b*0.9).toFixed(2)+')' : 'none'; };
-  r.addEventListener('input', apply); apply();
+  let queued=false;
+  r.addEventListener('input',()=>{ if(queued) return; queued=true; requestAnimationFrame(()=>{ queued=false; render(); }); });
+  render();
 })();
 
-/* ================= ด่าน 5: จำนวนเฉพาะหลายรูปแบบ ================= */
+/* ================= ด่าน 7: จำนวนเฉพาะหลายรูปแบบ ================= */
 (function initChips(){
   const seq=['91','0b101','XXI','0b110','0x17','57','1','V','0x1A','87','0b10','51','XLIX','0x07','33','0b1001','II','100','0x0F','0x20'];
   const box=$('#chips');
@@ -679,7 +933,7 @@ if(CALL_CODE){
   callBtn.addEventListener('click',()=>go('l3'));
 }
 
-/* ================= ด่าน 4: ช่องตัวเลข 5 ช่อง ================= */
+/* ================= ด่านสุดท้าย: ช่องตัวเลข 5 ช่อง ================= */
 const boxes=$$('.digit');
 boxes.forEach((b,i)=>{
   b.addEventListener('input',()=>{
@@ -700,7 +954,13 @@ boxes.forEach((b,i)=>{
   b.addEventListener('focus',()=>b.select());
 });
 
-const l4form=$('form[data-level="l4"]'), l4fb=$('.fb',l4form), l4card=$('#l4card');
+const l4form=$('form[data-level="l4"]'), l4fb=$('.fb',l4form), l4card=$('#l4card'), cutsceneBtn=$('#btn-cutscene');
+cutsceneBtn.addEventListener('click', async ()=>{
+  cutsceneBtn.disabled=true;
+  await celebrate();
+  go('end');
+  await runReveal();
+});
 l4form.addEventListener('submit', async e=>{
   e.preventDefault();
   const val=boxes.map(b=>b.value).join('');
@@ -709,10 +969,9 @@ l4form.addEventListener('submit', async e=>{
     st.end = Date.now(); save(); tick();
     boxes.forEach(b=>b.disabled=true); $('button[type=submit]',l4form).disabled=true;
     l4fb.className='fb ok'; l4fb.textContent='ถูกต้องทั้งหมด! 🎉';
+    Music.correct();
     Music.setMood('joy');
-    await celebrate();
-    go('end');
-    await runReveal();
+    cutsceneBtn.classList.add('show');
   } else {
     wrong(l4card, l4fb);
     boxes.forEach(b=>b.value=''); boxes[0].focus();
@@ -741,16 +1000,62 @@ async function runReveal(){
   $('#finalText').classList.add('show');
   await wait(1200);
   $('#finalTime').classList.add('show');
+  $('#loveGame').classList.add('show');
 }
 
+$$('[data-cute]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    $$('[data-cute]').forEach(b=>b.classList.remove('selected'));
+    button.classList.add('selected');
+    Music.correct();
+    const writer=$('#loveWriter');
+    writer.classList.add('show','animate');
+    $('#writerStatus').textContent='velox กำลังเพิ่มข้อความ...';
+    setTimeout(()=>$('#addLoveNote').click(),1300);
+  });
+});
+$('#addLoveNote').addEventListener('click',async ()=>{
+  const add=$('#addLoveNote'), note=$('#loveNote'), status=$('#writerStatus');
+  add.disabled=true; note.classList.add('show'); status.textContent='velox กำลังเขียนให้...';
+  const text='เธอน่ารักที่สุดแล้ววววว เบบี๋';
+  note.value='';
+  for(const char of text){ note.value+=char; await wait(75); }
+  status.textContent='เขียนเสร็จแล้ว 💗';
+  $('#lovePhoto').src='assets/couple.jpg';
+  $('#lovePhoto').alt='รูปคู่ของคนที่อยู่ในภารกิจ';
+  $('#loveNext').classList.add('show');
+  Music.correct();
+});
+const loveReplies = {
+  1:'คำตอบนี้ทำให้ยิ้มกว้างที่สุดเลย รักเหมือนกันนะ 💖',
+  2:'รักแน่นอนก็พอแล้ว ที่เหลือค่อยพิสูจน์ด้วยรอยยิ้มก็ได้ 😊',
+  3:'ขอบคุณที่ใส่ใจกันนะ แบบนี้แหละที่ทำให้รักมากขึ้น 💗',
+  4:'เห็นความพยายามแล้วนะ ขอบคุณที่ยังอยู่ข้างกันเสมอ 🫶',
+  5:'ไม่เชื่อหรอก... คนตอบต้องกำลังยิ้มอยู่แน่ ๆ 😏',
+};
+$$('[data-love]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    $$('[data-love]').forEach(b=>b.classList.remove('selected'));
+    button.classList.add('selected');
+    $('#loveResult').textContent=loveReplies[button.dataset.love];
+    Music.correct();
+  });
+});
+
 $('#btn-start').addEventListener('click',()=>{
+  Music.click();
   st.start = Date.now(); st.end=null; save(); go('l1');
+});
+
+$$('button').forEach(button=>{
+  if(button.id==='musicBtn' || button.id==='btn-start') return;
+  button.addEventListener('click',()=>Music.click());
 });
 
 /* ================= เริ่มต้น / กู้สถานะเมื่อรีเฟรช ================= */
 if(st.stage==='end'){
   go('end'); chain.style.display='none'; showFinalTime();
-  fin.classList.add('show'); $('#finalText').classList.add('show'); $('#finalTime').classList.add('show');
+  fin.classList.add('show'); $('#finalText').classList.add('show'); $('#finalTime').classList.add('show'); $('#loveGame').classList.add('show');
 } else {
   go(SCREENS[st.stage] ? st.stage : 'intro');
 }
